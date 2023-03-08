@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:personal_expenses/widgets/chart.dart';
 import 'package:personal_expenses/widgets/new_transactions.dart';
 import 'package:personal_expenses/widgets/transactions_list.dart';
 
@@ -15,7 +16,27 @@ class MyApp extends StatelessWidget {
       title: 'Personal Expences',
       home: const MyHomePage(),
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        colorScheme: ThemeData.light().colorScheme.copyWith(
+              primary: Colors.purple,
+              error: Colors.pink,
+            ),
+        fontFamily: 'Quicksand',
+        textTheme: ThemeData.light().textTheme.copyWith(
+              titleLarge: const TextStyle(
+                fontFamily: 'OpenSans',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              labelLarge: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+        appBarTheme: const AppBarTheme(
+          titleTextStyle: TextStyle(
+            fontFamily: 'OpenSans',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
@@ -32,21 +53,42 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _userTransactions = [
     Transaction(
         id: "0xW", title: "Shopping", amount: 250, date: DateTime.now()),
-    Transaction(
+    /* Transaction(
         id: "5xW", title: "School Expences", amount: 125, date: DateTime.now()),
     Transaction(
-        id: "00A", title: "New Phone", amount: 350, date: DateTime.now())
+        id: "00A", title: "New Phone", amount: 350, date: DateTime.now()) */
   ];
 
-  void _addNewTransaction(String txnTitle, double txnAmount) {
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((element) {
+      return element.date.isAfter(
+        DateTime.now().subtract(const Duration(days: 7)),
+      );
+    }).toList();
+  }
+
+  double get calculateTotalAmount {
+    return _recentTransactions.fold(
+        0, (previousValue, element) => previousValue + element.amount);
+  }
+
+  void _addNewTransaction(
+      String txnTitle, double txnAmount, DateTime chosenDate) {
     final newTxn = Transaction(
       id: DateTime.now().toString(),
       title: txnTitle,
       amount: txnAmount,
-      date: DateTime.now(),
+      date: chosenDate,
     );
     setState(() {
       _userTransactions.insert(0, newTxn);
+      calculateTotalAmount;
+    });
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransactions.removeWhere((element) => element.id == id);
     });
   }
 
@@ -73,22 +115,19 @@ class _MyHomePageState extends State<MyHomePage> {
         margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: double.infinity,
-                color: Theme.of(context).primaryColor ,
-                child: const Text(
-                  "Chart",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
+              SizedBox(
+                height: 30,
+                child: Text(
+                  "Total is: $calculateTotalAmount",
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
+              Chart(recentTransaction: _recentTransactions),
               TransacationsList(
-                userTransactions: _userTransactions,
-              )
+                  userTransactions: _userTransactions,
+                  deleteTransaction: _deleteTransaction)
             ],
           ),
         ),
@@ -96,6 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _startNewTransaction(context),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         child: const Icon(
           Icons.add,
         ),

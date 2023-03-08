@@ -1,30 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class NewTransaction extends StatefulWidget {
   const NewTransaction({super.key, required this.addNewTransaction});
   final Function addNewTransaction;
-
   @override
   State<NewTransaction> createState() => _NewTransactionState();
 }
 
 class _NewTransactionState extends State<NewTransaction> {
-  final tittleControler = TextEditingController();
-
-  final amountControler = TextEditingController();
+  final _tittleControler = TextEditingController();
+  final _amountControler = TextEditingController();
+  DateTime? _selectedDate;
 
   void submitData() {
-    final titleValue = tittleControler.text;
-    final amountValue = double.parse(amountControler.text);
-
-    if (titleValue.isEmpty || amountValue <= 0) {
+    final titleValue = _tittleControler.text;
+    final amountValue = double.parse(_amountControler.text);
+    //
+    if (titleValue.isEmpty || amountValue <= 0 || _selectedDate == null) {
       return;
     }
 
-    widget.addNewTransaction(titleValue, amountValue);
-    tittleControler.text = '';
-    amountControler.text = '';
+    widget.addNewTransaction(titleValue, amountValue, _selectedDate);
+    _tittleControler.text = '';
+    _amountControler.text = '';
     Navigator.of(context).pop();
+  }
+
+  void _presentDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2023),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    });
   }
 
   @override
@@ -33,13 +49,14 @@ class _NewTransactionState extends State<NewTransaction> {
       child: Container(
         padding: const EdgeInsets.all(10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Title',
                 border: OutlineInputBorder(),
               ),
-              controller: tittleControler,
+              controller: _tittleControler,
               onSubmitted: (_) => submitData,
             ),
             const SizedBox(
@@ -50,9 +67,38 @@ class _NewTransactionState extends State<NewTransaction> {
                 labelText: 'Amount',
                 border: OutlineInputBorder(),
               ),
-              controller: amountControler,
+              controller: _amountControler,
               keyboardType: TextInputType.number,
               onSubmitted: (_) => submitData(),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    (_selectedDate == null)
+                        ? "No Date Chosen"
+                        : "Picked Date: ${DateFormat.yMd().format(_selectedDate!)}",
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                OutlinedButton(
+                  onPressed: _presentDatePicker,
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                        Theme.of(context).colorScheme.primary),
+                    side: MaterialStateProperty.all(BorderSide.none),
+                  ),
+                  child: const Text(
+                    "Chose a Date",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(
               height: 10,
@@ -60,8 +106,11 @@ class _NewTransactionState extends State<NewTransaction> {
             OutlinedButton(
               onPressed: submitData,
               style: ButtonStyle(
-                foregroundColor:
-                    MaterialStateProperty.all<Color>(Colors.purple),
+                foregroundColor: MaterialStateProperty.all<Color>(
+                    Theme.of(context).textTheme.labelLarge!.color!),
+                backgroundColor: MaterialStateProperty.all(
+                    Theme.of(context).colorScheme.primary),
+                side: MaterialStateProperty.all(BorderSide.none),
               ),
               child: const Text("Add Transaction"),
             )
