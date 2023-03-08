@@ -1,5 +1,4 @@
 <p align="center">
-  <img src="/screenshots/logo.png" alt="Logo" width="80" height="80">
 
   <h3 align="center">Personal Expenses App</h3>
 
