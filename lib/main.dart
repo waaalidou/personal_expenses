@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
       home: const MyHomePage(),
       theme: ThemeData(
         colorScheme: ThemeData.light().colorScheme.copyWith(
-              primary: Colors.purple,
-              error: Colors.pink,
+              primary: Colors.deepOrange[400],
+              error: Colors.pink[400],
             ),
         fontFamily: 'Quicksand',
         textTheme: ThemeData.light().textTheme.copyWith(
@@ -50,13 +50,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final appBar = AppBar(
+    title: const Text('Personal Expences'),
+  );
   final List<Transaction> _userTransactions = [
     Transaction(
-        id: "0xW", title: "Shopping", amount: 250, date: DateTime.now()),
-    /* Transaction(
-        id: "5xW", title: "School Expences", amount: 125, date: DateTime.now()),
-    Transaction(
-        id: "00A", title: "New Phone", amount: 350, date: DateTime.now()) */
+      id: "0xW",
+      title: "Shopping",
+      amount: 250,
+      date: DateTime.now(),
+    ),
   ];
 
   List<Transaction> get _recentTransactions {
@@ -103,14 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Personal Expences'),
-        actions: [
-          IconButton(
-              onPressed: () => _startNewTransaction(context),
-              icon: const Icon(Icons.add))
-        ],
-      ),
+      appBar: appBar,
       body: Container(
         margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
         child: SingleChildScrollView(
@@ -118,16 +114,21 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: 30,
-                child: Text(
-                  "Total is: $calculateTotalAmount",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                height: (MediaQuery.of(context).size.height -
+                        appBar.preferredSize.height -
+                        MediaQuery.of(context).padding.top) *
+                    0.4,
+                child: Chart(recentTransaction: _recentTransactions),
               ),
-              Chart(recentTransaction: _recentTransactions),
-              TransacationsList(
-                  userTransactions: _userTransactions,
-                  deleteTransaction: _deleteTransaction)
+              SizedBox(
+                height: (MediaQuery.of(context).size.height -
+                        appBar.preferredSize.height -
+                        MediaQuery.of(context).padding.top) *
+                    0.6,
+                child: TransacationsList(
+                    userTransactions: _userTransactions,
+                    deleteTransaction: _deleteTransaction),
+              )
             ],
           ),
         ),
