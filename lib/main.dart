@@ -5,7 +5,14 @@ import 'package:personal_expenses/widgets/transactions_list.dart';
 
 import 'models/transactions.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitUp,
+  //   DeviceOrientation.portraitDown,
+  // ]);
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -53,6 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final appBar = AppBar(
     title: const Text('Personal Expences'),
   );
+
+  bool _showChart = false;
   final List<Transaction> _userTransactions = [
     Transaction(
       id: "0xW",
@@ -111,20 +120,31 @@ class _MyHomePageState extends State<MyHomePage> {
         margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(
-                height: (MediaQuery.of(context).size.height -
-                        appBar.preferredSize.height -
-                        MediaQuery.of(context).padding.top) *
-                    0.4,
-                child: Chart(recentTransaction: _recentTransactions),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Show Chart"),
+                  Switch(value: _showChart, onChanged: (value){
+                    setState(() {
+                      _showChart = value;
+                    });
+                  }),
+                ],
               ),
+              _showChart ? SizedBox(
+                height: (MediaQuery.of(context).size.height -
+                        appBar.preferredSize.height -
+                        MediaQuery.of(context).padding.top) *
+                    0.8,
+                child: Chart(recentTransaction: _recentTransactions),
+              ) : 
               SizedBox(
                 height: (MediaQuery.of(context).size.height -
                         appBar.preferredSize.height -
                         MediaQuery.of(context).padding.top) *
-                    0.6,
+                    0.7,
                 child: TransacationsList(
                     userTransactions: _userTransactions,
                     deleteTransaction: _deleteTransaction),
