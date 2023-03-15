@@ -17,7 +17,7 @@ class TransacationsList extends StatelessWidget {
           ? SizedBox(
               height: 200,
               child: LayoutBuilder(
-                builder: (ctx, constraints ) => Column(
+                builder: (ctx, constraints) => Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
@@ -68,12 +68,27 @@ class TransacationsList extends StatelessWidget {
                     ),
                     subtitle: Text(DateFormat.yMMMd()
                         .format(_userTransactions[index].date)),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () =>
-                          deleteTransaction(_userTransactions[index].id),
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                    trailing: MediaQuery.of(context).size.width > 400
+                        ? ElevatedButton.icon(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.transparent),
+                            ),
+                            onPressed: null,
+                            icon: IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => deleteTransaction(
+                                  _userTransactions[index].id),
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            label: const Text("Delete TXN"),
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () =>
+                                deleteTransaction(_userTransactions[index].id),
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                   ),
                 );
               },

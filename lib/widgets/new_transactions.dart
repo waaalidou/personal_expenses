@@ -46,80 +46,82 @@ class _NewTransactionState extends State<NewTransaction> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Container(
-        padding:  EdgeInsets.only(
-          left: 10,
-          top: 10,
-          right: 10,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 10,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                border: OutlineInputBorder(),
-              ),
-              controller: _tittleControler,
-              onSubmitted: (_) => submitData,
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Amount',
-                border: OutlineInputBorder(),
-              ),
-              controller: _amountControler,
-              keyboardType: TextInputType.number,
-              onSubmitted: (_) => submitData(),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    (_selectedDate == null)
-                        ? "No Date Chosen"
-                        : "Picked Date: ${DateFormat.yMd().format(_selectedDate!)}",
-                  ),
+      child: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.only(
+            left: 10,
+            top: 10,
+            right: 10,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
-                OutlinedButton(
-                  onPressed: _presentDatePicker,
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).colorScheme.primary),
-                    side: MaterialStateProperty.all(BorderSide.none),
-                  ),
-                  child: const Text(
-                    "Chose a Date",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            OutlinedButton(
-              onPressed: submitData,
-              style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all<Color>(
-                    Theme.of(context).textTheme.labelLarge!.color!),
-                backgroundColor: MaterialStateProperty.all(
-                    Theme.of(context).colorScheme.primary),
-                side: MaterialStateProperty.all(BorderSide.none),
+                controller: _tittleControler,
+                onSubmitted: (_) => submitData,
               ),
-              child: const Text("Add Transaction"),
-            )
-          ],
+              const SizedBox(
+                height: 15,
+              ),
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                  border: OutlineInputBorder(),
+                ),
+                controller: _amountControler,
+                keyboardType: TextInputType.number,
+                onSubmitted: (_) => submitData(),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      (_selectedDate == null)
+                          ? "No Date Chosen"
+                          : "Picked Date: ${DateFormat.yMd().format(_selectedDate!)}",
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  OutlinedButton(
+                    onPressed: _presentDatePicker,
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.primary),
+                      side: MaterialStateProperty.all(BorderSide.none),
+                    ),
+                    child: const Text(
+                      "Chose a Date",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              OutlinedButton(
+                onPressed: submitData,
+                style: ButtonStyle(
+                  foregroundColor: MaterialStateProperty.all<Color>(
+                      Theme.of(context).textTheme.labelLarge!.color!),
+                  backgroundColor: MaterialStateProperty.all(
+                      Theme.of(context).colorScheme.primary),
+                  side: MaterialStateProperty.all(BorderSide.none),
+                ),
+                child: const Text("Add Transaction"),
+              )
+            ],
+          ),
         ),
       ),
     );

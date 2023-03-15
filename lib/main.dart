@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:personal_expenses/widgets/chart.dart';
 import 'package:personal_expenses/widgets/new_transactions.dart';
@@ -57,10 +58,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final appBar = AppBar(
-    title: const Text('Personal Expences'),
-  );
-
   bool _showChart = false;
   final List<Transaction> _userTransactions = [
     Transaction(
@@ -114,6 +111,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appBar = AppBar(
+      title: const Text('Personal Expences'),
+      actions: [
+        IconButton(
+            onPressed: () => _startNewTransaction(context),
+            icon: const Icon(Icons.add))
+      ],
+    );
+    final mediaQuery = MediaQuery.of(context);
+    bool isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final txListWidget = SizedBox(
+      height: (mediaQuery.size.height -
+              appBar.preferredSize.height -
+              mediaQuery.padding.top) *
+          0.7,
+      child: TransacationsList(
+          userTransactions: _userTransactions,
+          deleteTransaction: _deleteTransaction),
+    );
     return Scaffold(
       appBar: appBar,
       body: Container(
@@ -122,45 +138,53 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Show Chart"),
-                  Switch(value: _showChart, onChanged: (value){
-                    setState(() {
-                      _showChart = value;
-                    });
-                  }),
-                ],
-              ),
-              _showChart ? SizedBox(
-                height: (MediaQuery.of(context).size.height -
-                        appBar.preferredSize.height -
-                        MediaQuery.of(context).padding.top) *
-                    0.8,
-                child: Chart(recentTransaction: _recentTransactions),
-              ) : 
-              SizedBox(
-                height: (MediaQuery.of(context).size.height -
-                        appBar.preferredSize.height -
-                        MediaQuery.of(context).padding.top) *
-                    0.7,
-                child: TransacationsList(
-                    userTransactions: _userTransactions,
-                    deleteTransaction: _deleteTransaction),
-              )
+              if (isLandscape)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Show Chart"),
+                    Switch.adaptive(
+                        value: _showChart,
+                        onChanged: (value) {
+                          setState(() {
+                            _showChart = value;
+                          });
+                        }),
+                  ],
+                ),
+              if (!isLandscape)
+                SizedBox(
+                  height: (mediaQuery.size.height -
+                          appBar.preferredSize.height -
+                          mediaQuery.padding.top) *
+                      0.3,
+                  child: Chart(recentTransaction: _recentTransactions),
+                ),
+              if (!isLandscape) txListWidget,
+              if (isLandscape)
+                _showChart
+                    ? SizedBox(
+                        height: (mediaQuery.size.height -
+                                appBar.preferredSize.height -
+                                mediaQuery.padding.top) *
+                            0.8,
+                        child: Chart(recentTransaction: _recentTransactions),
+                      )
+                    : txListWidget
             ],
           ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _startNewTransaction(context),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: const Icon(
-          Icons.add,
-        ),
-      ),
+      floatingActionButton: Platform.isIOS
+          ? Container()
+          : FloatingActionButton(
+              onPressed: () => _startNewTransaction(context),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: const Icon(
+                Icons.add,
+              ),
+            ),
     );
   }
 }
