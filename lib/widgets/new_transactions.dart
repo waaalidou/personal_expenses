@@ -1,5 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import 'adaptive_button.dart';
 
 class NewTransaction extends StatefulWidget {
   const NewTransaction({super.key, required this.addNewTransaction});
@@ -92,18 +95,10 @@ class _NewTransactionState extends State<NewTransaction> {
                   const SizedBox(
                     width: 10,
                   ),
-                  OutlinedButton(
-                    onPressed: _presentDatePicker,
-                    style: ButtonStyle(
-                      foregroundColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.primary),
-                      side: MaterialStateProperty.all(BorderSide.none),
-                    ),
-                    child: const Text(
-                      "Chose a Date",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                  AdaptiveFlatButton(
+                    handeler: _presentDatePicker,
+                    title: "Pick a Date",
+                  )
                 ],
               ),
               const SizedBox(

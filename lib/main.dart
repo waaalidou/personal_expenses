@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personal_expenses/widgets/chart.dart';
 import 'package:personal_expenses/widgets/new_transactions.dart';
@@ -20,33 +21,46 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Personal Expences',
-      home: const MyHomePage(),
-      theme: ThemeData(
-        colorScheme: ThemeData.light().colorScheme.copyWith(
-              primary: Colors.deepOrange[400],
-              error: Colors.pink[400],
-            ),
-        fontFamily: 'Quicksand',
-        textTheme: ThemeData.light().textTheme.copyWith(
-              titleLarge: const TextStyle(
-                fontFamily: 'OpenSans',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+    return Platform.isIOS
+        ? CupertinoApp(
+            title: 'Personal Expences',
+            home: const MyHomePage(),
+            theme: CupertinoThemeData(
+              primaryColor: Colors.deepOrange[400],
+              textTheme: const CupertinoTextThemeData(
+                textStyle: TextStyle(
+                  fontFamily: 'Quicksand',
+                ),
               ),
-              labelLarge: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
-        appBarTheme: const AppBarTheme(
-          titleTextStyle: TextStyle(
-            fontFamily: 'OpenSans',
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
+          )
+        : MaterialApp(
+            title: 'Personal Expences',
+            home: const MyHomePage(),
+            theme: ThemeData(
+              colorScheme: ThemeData.light().colorScheme.copyWith(
+                    primary: Colors.deepOrange[400],
+                    error: Colors.pink[400],
+                  ),
+              fontFamily: 'Quicksand',
+              textTheme: ThemeData.light().textTheme.copyWith(
+                    titleLarge: const TextStyle(
+                      fontFamily: 'OpenSans',
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    labelLarge: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+              appBarTheme: const AppBarTheme(
+                titleTextStyle: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
   }
 }
 
@@ -109,18 +123,58 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  List <Widget> _buildLandScapeContent(MediaQueryData mediaQuery,
+    AppBar appBar,
+    Widget txListWidget,) {
+    return [Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text("Show Chart"),
+        Switch.adaptive(
+            value: _showChart,
+            onChanged: (value) {
+              setState(() {
+                _showChart = value;
+              });
+            }),
+      ],
+    ), _showChart
+                    ? SizedBox(
+                        height: (mediaQuery.size.height -
+                                appBar.preferredSize.height -
+                                mediaQuery.padding.top) *
+                            0.8,
+                        child: Chart(recentTransaction: _recentTransactions),
+                      )
+                    : txListWidget];
+  }
+
+  List <Widget> _buildPortraitContent(
+    MediaQueryData mediaQuery,
+    AppBar appBar,
+    Widget txListWidget,
+  ) {
+    return [SizedBox(
+      height: (mediaQuery.size.height -
+              appBar.preferredSize.height -
+              mediaQuery.padding.top) *
+          0.3,
+      child: Chart(recentTransaction: _recentTransactions),
+    ), txListWidget];
+  }
+
   @override
   Widget build(BuildContext context) {
     final appBar = AppBar(
       title: const Text('Personal Expences'),
       actions: [
         IconButton(
-            onPressed: () => _startNewTransaction(context),
-            icon: const Icon(Icons.add))
+          onPressed: () => _startNewTransaction(context),
+          icon: const Icon(Icons.add),
+        ),
       ],
     );
     final mediaQuery = MediaQuery.of(context);
-    bool isLandscape = mediaQuery.orientation == Orientation.landscape;
     final txListWidget = SizedBox(
       height: (mediaQuery.size.height -
               appBar.preferredSize.height -
@@ -130,61 +184,50 @@ class _MyHomePageState extends State<MyHomePage> {
           userTransactions: _userTransactions,
           deleteTransaction: _deleteTransaction),
     );
-    return Scaffold(
-      appBar: appBar,
-      body: Container(
+    bool isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final pageBody = SafeArea(
+      child: Container(
         margin: const EdgeInsets.fromLTRB(15, 15, 15, 0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (isLandscape)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Show Chart"),
-                    Switch.adaptive(
-                        value: _showChart,
-                        onChanged: (value) {
-                          setState(() {
-                            _showChart = value;
-                          });
-                        }),
-                  ],
-                ),
-              if (!isLandscape)
-                SizedBox(
-                  height: (mediaQuery.size.height -
-                          appBar.preferredSize.height -
-                          mediaQuery.padding.top) *
-                      0.3,
-                  child: Chart(recentTransaction: _recentTransactions),
-                ),
-              if (!isLandscape) txListWidget,
-              if (isLandscape)
-                _showChart
-                    ? SizedBox(
-                        height: (mediaQuery.size.height -
-                                appBar.preferredSize.height -
-                                mediaQuery.padding.top) *
-                            0.8,
-                        child: Chart(recentTransaction: _recentTransactions),
-                      )
-                    : txListWidget
-            ],
+              if (isLandscape) ..._buildLandScapeContent(mediaQuery, appBar, txListWidget),
+              if (!isLandscape) ..._buildPortraitContent(mediaQuery, appBar, txListWidget),
+             ],
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Platform.isIOS
-          ? Container()
-          : FloatingActionButton(
-              onPressed: () => _startNewTransaction(context),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Icon(
-                Icons.add,
-              ),
-            ),
     );
+
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              automaticallyImplyLeading: false,
+              middle: const Text("Personal Expences"),
+              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                GestureDetector(
+                  child: const Icon(CupertinoIcons.add),
+                  onTap: () => _startNewTransaction(context),
+                )
+              ]),
+            ),
+            child: pageBody,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: pageBody,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton(
+                    onPressed: () => _startNewTransaction(context),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: const Icon(
+                      Icons.add,
+                    ),
+                  ),
+          );
   }
 }

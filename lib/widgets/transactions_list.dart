@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '/models/transactions.dart';
+import 'transaction_card.dart';
 
 class TransacationsList extends StatelessWidget {
   const TransacationsList(
@@ -42,56 +42,11 @@ class TransacationsList extends StatelessWidget {
               ),
             )
           : ListView.builder(
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 5,
-                  ),
-                  elevation: 4,
-                  child: ListTile(
-                    leading: FittedBox(
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        child: Text(
-                          "\$${_userTransactions[index].amount}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    title: Text(
-                      _userTransactions[index].title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    subtitle: Text(DateFormat.yMMMd()
-                        .format(_userTransactions[index].date)),
-                    trailing: MediaQuery.of(context).size.width > 400
-                        ? ElevatedButton.icon(
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.transparent),
-                            ),
-                            onPressed: null,
-                            icon: IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => deleteTransaction(
-                                  _userTransactions[index].id),
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                            label: const Text("Delete TXN"),
-                          )
-                        : IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () =>
-                                deleteTransaction(_userTransactions[index].id),
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                  ),
-                );
-              },
+              itemBuilder: (context, index) => TransactionCard(
+                key: ValueKey(_userTransactions[index].id),
+                userTransactions: _userTransactions[index],
+                deleteTransaction: deleteTransaction,
+              ),
               itemCount: _userTransactions.length,
             ),
     );
